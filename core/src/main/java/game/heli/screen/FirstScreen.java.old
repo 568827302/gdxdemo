@@ -1,0 +1,109 @@
+package game.heli.screen;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Touchpad;
+import com.badlogic.gdx.utils.Align;
+
+import game.heli.Demo;
+
+/** First screen of the application. Displayed after the application is created. */
+public class FirstScreen extends MyScreenAdapter {
+    
+    public FirstScreen(Demo game) {
+        super(game);
+    }
+    
+    Stage stage;
+
+    @Override
+    public void show() {
+        // Prepare your screen here.
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
+        
+        FileHandle skinFile = Gdx.files.internal("ui/uiskin.json");
+        Skin skin = new Skin(skinFile);
+        Touchpad touchpad = new Touchpad(1, skin);
+        touchpad.setBounds(120, 230, 200, 200);
+        
+        stage.addListener(new InputListener() {
+
+			Vector2 p = new Vector2();
+			Rectangle b = new Rectangle();
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				if (event.getTarget() != touchpad) {
+					// If we didn't actually touch the touchpad, set position to our touch point
+                        /*
+					b.set(touchpad.getX(), touchpad.getY(), touchpad.getWidth(), touchpad.getHeight());
+					b.setCenter(x, y);
+					touchpad.setBounds(b.x, b.y, b.width, b.height);
+                    */
+					// Let the touchpad know to start tracking touch
+					//touchpad.fire(event);
+				}
+				return true;
+			}
+
+			@Override
+			public void touchDragged(InputEvent event, float x, float y, int pointer) {
+				//touchpad.stageToLocalCoordinates(p.set(x, y));
+                    /*
+				if (touchpad.hit(p.x, p.y, true) == null) {
+					// If we moved outside of the touchpad, have it follow our touch position;
+					// but we want to keep the direction of the knob, so shift to the edge of the
+					// touchpad's radius with a small amount of smoothing, so it looks nice.
+					p.set(-touchpad.getKnobPercentX(), -touchpad.getKnobPercentY()).nor()
+							.scl(Math.min(touchpad.getWidth(), touchpad.getHeight()) * 0.5f)
+							.add(x, y);
+					touchpad.addAction(Actions.moveToAligned(p.x, p.y, Align.center, 0.15f));
+				}
+                    */
+			}
+
+			@Override
+			public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+				// Put the touchpad back to its original position
+				touchpad.clearActions();
+				touchpad.addAction(Actions.moveTo(120, 230, 0.15f));
+			}
+		});
+        
+        stage.addActor(touchpad);
+    }
+
+    @Override
+    public void render(float delta) {
+        // Draw your screen here. "delta" is the time since last render in seconds.
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+       
+        mainBatch.begin();
+        
+        mainBatch.end();
+        
+        stage.act(delta);
+        stage.draw();
+        
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        // Resize your screen here. The parameters represent the new window size.
+        stage.getViewport().update(width, height);
+    }
+
+    @Override
+    public void dispose() {
+        // Destroy screen's assets here.
+        stage.dispose();
+    }
+}
